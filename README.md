@@ -1,2 +1,2 @@
 # MineCrap
-Alpha profit switching mining
+Alpha profit switching miner
