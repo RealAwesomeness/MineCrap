@@ -59,6 +59,18 @@ function tradeogre(coin,callback) {
 			}
 	})
 }
+#the srbminer function isnt finished!
+function srbminer(stat,callback) {
+	var url = "http://127.0.0.1:21555/"
+	stat = stat.toLowerCase()
+	console.log(stat)
+	request(url, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				jsonfromwebsite = JSON.parse(body);
+				speed=jsonfromwebsite.
+				callback(null,stat,speed)
+			}
+	})
+}
 cryptobridge("rvn",exchangeHandling)
 tradeogre("xhv",exchangeHandling)
-
