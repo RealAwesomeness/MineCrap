@@ -1,5 +1,6 @@
 const fs = require('fs');
 const request = require("request");
+const { exec } = require('child_process');
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
@@ -59,6 +60,38 @@ function tradeogre(coin,callback) {
 			}
 	})
 }
+function minerHandling (error, stat, algo, miner, speed) {
+	if (error) console.error('Error retrieving data : ' + error)
+	else console.log('Benchmark speed of ' + coin + ' : ' + price)
+#the srbminer function isnt finished!
+function srbminer(stat,algo,callback) {
+	var url = "http://127.0.0.1:21555/"
+	stat = stat.toLowerCase()
+	console.log(stat)
+	exec('cd srbminer\nsrbminer.exe --', (err, stdout, stderr) => {
+		if (err) {
+			// node couldn't execute the command
+			callback(err)
+			return;
+		}
+
+		// the *entire* stdout and stderr (buffered)
+		console.log(`stdout: ${stdout}`);
+		console.log(`stderr: ${stderr}`);
+});
+	speed = 0
+	while (speed!=0) {
+		request(url, function (error, response, body) {
+				if (!error && response.statusCode == 200) {
+					jsonfromwebsite = JSON.parse(body);
+					speed=jsonfromwebsite.hashrate_total_5min
+				}
+		})
+	}
+	callback(null, stat, algo, "srbminer", speed)
+}
+function bench(function, stat, algo, callback, callbackdos) {
+	callbackdos(function(stat, algo, callback))
+}
 cryptobridge("rvn",exchangeHandling)
 tradeogre("xhv",exchangeHandling)
-
