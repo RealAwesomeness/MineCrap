@@ -1,3 +1,3 @@
 # MineCrap
-Alpha profit switching miner\n
-Run install.sh to install dependincies.
+Alpha profit switching miner
+**Run install.sh to install dependincies.
