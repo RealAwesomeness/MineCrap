@@ -1,6 +1,7 @@
 const fs = require('fs');
 const request = require("request");
-const { exec } = require('child_process');
+const exec = require('child_process').exec;
+var prompt = require('prompt');
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
@@ -60,38 +61,62 @@ function tradeogre(coin,callback) {
 			}
 	})
 }
-function minerHandling (error, stat, algo, miner, speed) {
-	if (error) console.error('Error retrieving data : ' + error)
-	else console.log('Benchmark speed of ' + coin + ' : ' + price)
-#the srbminer function isnt finished!
-function srbminer(stat,algo,callback) {
-	var url = "http://127.0.0.1:21555/"
-	stat = stat.toLowerCase()
-	console.log(stat)
-	exec('cd srbminer\nsrbminer.exe --', (err, stdout, stderr) => {
-		if (err) {
-			// node couldn't execute the command
-			callback(err)
-			return;
+function minerupdate (installfile, githubapiurl, minername, install) {
+	outdated=false
+	var options = {
+		url: githubapiurl,
+		headers: {
+			'User-Agent': 'MineCrap'
 		}
-
-		// the *entire* stdout and stderr (buffered)
-		console.log(`stdout: ${stdout}`);
-		console.log(`stderr: ${stderr}`);
-});
-	speed = 0
-	while (speed!=0) {
-		request(url, function (error, response, body) {
-				if (!error && response.statusCode == 200) {
+	};
+	fs.readFile('versions.json', 'utf8', function(err, contents) {
+		versionjson=JSON.parse(contents)
+		request(options, function (error, response, body) {
+				console.log(error)
+				console.log(response.statuscode)
+				if (!error) {
 					jsonfromwebsite = JSON.parse(body);
-					speed=jsonfromwebsite.hashrate_total_5min
+					console.log(jsonfromwebsite)
+					if (jsonfromwebsite.tag_name!=versionjson[minername]) {
+						console.log(minername + " is outdated or missing! Running installation script...")
+						install(installfile, execute)
+					}
+	
 				}
 		})
-	}
-	callback(null, stat, algo, "srbminer", speed)
+	})
 }
-function bench(function, stat, algo, callback, callbackdos) {
-	callbackdos(function(stat, algo, callback))
+function execute (command) {
+	exec(command, function(error, stdout, stderr) {
+		if (error) {
+			console.log(error);
+		}
+		else {
+			console.log(stdout)
+		}
+	});
 }
-cryptobridge("rvn",exchangeHandling)
-tradeogre("xhv",exchangeHandling)
+function xmrstakinstall (installfile, execution) {
+	prompt.start
+	prompt.get(['opencl_Y_or_N', 'cuda_Y_or_N'], function (err, result) {
+		if (result.opencl_Y_or_N=="N" || result.opencl_Y_or_N=="n") {
+			if (result.cuda_Y_or_N=="N" || result.cuda_Y_or_N=="n") {
+				execution("sudo sh xmr-stak-compiler.sh -DCUDA_ENABLE=OFF -DOpenCL_ENABLE=OFF")
+			}
+			else {
+				execution("sudo sh xmr-stak-compiler.sh -DOpenCL_ENABLE=OFF")
+			}
+		} else	
+		if (result.opencl_Y_or_N=="Y" || result.opencl_Y_or_N=="y") {
+			if (result.cuda_Y_or_N=="N" || result.cuda_Y_or_N=="n") {
+				execution("sudo sh xmr-stak-compiler.sh -DCUDA_ENABLE=OFF")
+			}
+			else {
+				execution("sudo sh xmr-stak-compiler.sh")
+			}
+		}
+	})
+	
+}
+minerupdate ("xmr-stak-compiler.sh","https://api.github.com/repos/fireice-uk/xmr-stak/releases/latest", "xmr-stak", xmrstakinstall)
+
